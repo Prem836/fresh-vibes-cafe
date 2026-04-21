@@ -1,7 +1,3 @@
-/* =========================================
-   FRESH VIBES CAFE — script.js
-   ========================================= */
-
 // ---- Navbar scroll effect ----
 const navbar = document.getElementById('navbar');
 const navLinks = document.querySelectorAll('.nav-link');
