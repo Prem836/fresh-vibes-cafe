@@ -205,55 +205,101 @@ if (dateInput) {
 const reservationForm = document.getElementById('reservationForm');
 const toast = document.getElementById('toast');
 
+// Auto-detect: use live URL if hosted, localhost if running locally
+const BACKEND_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:3001/api/reservations'
+  : 'https://fresh-vibes-backend.onrender.com/api/reservations';
+
 if (reservationForm) {
-  reservationForm.addEventListener('submit', e => {
+  reservationForm.addEventListener('submit', async e => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    const btn = document.getElementById('submitReservation');
-    const btnText = btn.querySelector('.btn-text');
+    const btn       = document.getElementById('submitReservation');
+    const btnText   = btn.querySelector('.btn-text');
     const btnLoading = btn.querySelector('.btn-loading');
 
     btn.disabled = true;
-    btnText.style.display = 'none';
-    btnLoading.style.display = '';
+    btnText.classList.add('btn-hidden');
+    btnLoading.classList.remove('btn-hidden');
+    btnLoading.textContent = 'Submitting…';
 
-    // Simulate API / WhatsApp redirect
-    setTimeout(() => {
-      const name = document.getElementById('res-name').value.trim();
-      const phone = document.getElementById('res-phone-input').value.trim();
-      const date = document.getElementById('res-date').value;
-      const time = document.getElementById('res-time').value;
-      const guests = document.getElementById('res-guests').value;
-      const occasion = document.getElementById('res-occasion').value;
-      const notes = document.getElementById('res-notes').value.trim();
+    // Collect form data
+    const name     = document.getElementById('res-name').value.trim();
+    const phone    = document.getElementById('res-phone-input').value.trim();
+    const email    = (document.getElementById('res-email') ? document.getElementById('res-email').value.trim() : '');
+    const date     = document.getElementById('res-date').value;
+    const time     = document.getElementById('res-time').value;
+    const guests   = document.getElementById('res-guests').value;
+    const occasion = document.getElementById('res-occasion').value;
+    const notes    = document.getElementById('res-notes').value.trim();
 
-      // Build WhatsApp message
+    // ── Try backend first ──────────────────────────────────────────────────
+    let backendSuccess = false;
+    try {
+      const res = await fetch(BACKEND_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, phone, email, date, time, guests, occasion, notes }),
+        signal: AbortSignal.timeout(8000)   // 8s timeout
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        backendSuccess = true;
+        // Show success toast with email note
+        const toastText = toast.querySelector('span:last-child');
+        if (toastText) toastText.textContent = email
+          ? 'We\'ll contact you to confirm. A confirmation email is on its way!'
+          : 'We\'ll call you shortly to confirm your booking.';
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 6000);
+        reservationForm.reset();
+      } else {
+        throw new Error(data.error || 'Backend error');
+      }
+
+    } catch (err) {
+      console.warn('Backend unavailable, falling back to WhatsApp:', err.message);
+    }
+
+    // ── WhatsApp fallback (if backend is offline) ──────────────────────────
+    if (!backendSuccess) {
+      const occasionLabels = {
+        regular: 'Regular Meal', birthday: 'Birthday Celebration 🎂',
+        anniversary: 'Anniversary 💑', family: 'Family Get-Together',
+        business: 'Business Lunch', other: 'Other'
+      };
+      const guestLabels = {
+        '1': '1 Person', '2': '2 People', '3': '3 People', '4': '4 People',
+        '5': '5 People', '6': '6 People', '7-10': '7–10 People', '10+': '10+ People (Group)'
+      };
+      const dateObj  = new Date(date + 'T00:00:00');
+      const niceDate = dateObj.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+      const [hh, mm] = time.split(':');
+      const timeObj  = new Date();
+      timeObj.setHours(+hh, +mm);
+      const niceTime    = timeObj.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true });
+      const guestLabel  = guestLabels[guests] || guests;
+      const cleanNotes  = notes && !['nil','n/a','none'].includes(notes.toLowerCase()) ? notes : '';
       const msg = encodeURIComponent(
-        `🌿 *Table Reservation – Fresh Vibes Café*\n\n` +
-        `👤 Name: ${name}\n` +
-        `📞 Phone: ${phone}\n` +
-        `📅 Date: ${date}\n` +
-        `⏰ Time: ${time}\n` +
-        `👥 Guests: ${guests}\n` +
-        `🎉 Occasion: ${occasion}\n` +
-        (notes ? `📝 Notes: ${notes}\n` : '') +
-        `\nPlease confirm my reservation. Thank you!`
+        `\u{1F33F} *Table Reservation \u2013 Fresh Vibes Caf\u00E9*\n\n` +
+        `\u{1F464} *Name:* ${name}\n\u{1F4DE} *Phone:* ${phone}\n` +
+        `\u{1F4C5} *Date:* ${niceDate}\n\u23F0 *Time:* ${niceTime}\n` +
+        `\u{1F465} *Guests:* ${guestLabel}\n\u{1F389} *Occasion:* ${occasionLabels[occasion] || occasion}\n` +
+        (cleanNotes ? `\u{1F4DD} *Notes:* ${cleanNotes}\n` : '') +
+        `\nPlease confirm my reservation. Thank you! \u{1F64F}`
       );
-
-      // Open WhatsApp
       window.open(`https://wa.me/919796223627?text=${msg}`, '_blank');
-
-      // Show toast
       toast.classList.add('show');
       setTimeout(() => toast.classList.remove('show'), 5000);
-
-      // Reset form
       reservationForm.reset();
-      btn.disabled = false;
-      btnText.style.display = '';
-      btnLoading.style.display = 'none';
-    }, 1500);
+    }
+
+    btn.disabled = false;
+    btnText.classList.remove('btn-hidden');
+    btnLoading.classList.add('btn-hidden');
   });
 }
 

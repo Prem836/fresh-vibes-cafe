@@ -6,6 +6,24 @@
   <title>Fresh Vibes Cafe — Pure Veg Family Restaurant | Kathua, J&K</title>
   <meta name="description" content="Fresh Vibes Cafe — A complete pure vegetarian family restaurant in Kathua, Jammu & Kashmir. Enjoy authentic Indian cuisine, fast food, breakfast, lunch & dinner at National Highway Chadwal More." />
   <meta name="keywords" content="Fresh Vibes Cafe, vegetarian restaurant Kathua, Indian food Kathua, family restaurant Jammu Kashmir, pure veg cafe NH44" />
+
+  <!-- ===== SECURITY HEADERS ===== -->
+  <!-- Prevent clickjacking (embedding in iframes) -->
+  <meta http-equiv="X-Frame-Options" content="DENY" />
+  <!-- Stop MIME-type sniffing attacks -->
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <!-- Control referrer info sent to other sites -->
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <!-- Content Security Policy: only allow resources from trusted sources -->
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    script-src 'self';
+    style-src 'self' https://fonts.googleapis.com;
+    font-src 'self' https://fonts.gstatic.com;
+    img-src 'self' data:;
+    frame-src https://maps.google.com https://www.google.com;
+    connect-src 'none';
+  " />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet" />
@@ -398,6 +416,12 @@
             </div>
           </div>
           <div class="form-row">
+            <div class="form-group full">
+              <label for="res-email">Email Address <span style="color:var(--text-muted,#aaa);font-weight:400;">(optional — for confirmation email)</span></label>
+              <input type="email" id="res-email" name="email" placeholder="your@email.com" />
+            </div>
+          </div>
+          <div class="form-row">
             <div class="form-group">
               <label for="res-date">Reservation Date *</label>
               <input type="date" id="res-date" name="date" required />
@@ -466,7 +490,7 @@
           </div>
           <button type="submit" class="btn btn-primary btn-block" id="submitReservation">
             <span class="btn-text">Confirm Reservation 🎉</span>
-            <span class="btn-loading" style="display:none;">Processing…</span>
+            <span class="btn-loading btn-hidden">Processing…</span>
           </button>
         </form>
       </div>
@@ -583,6 +607,7 @@
     </div>
     <div class="footer-bottom">
       <p>© 2026 Fresh Vibes Café, Kathua. All rights reserved. | Designed with ❤️ for pure food lovers.</p>
+      <p style="margin-top:8px;"><a href="admin.html" id="footer-admin-link" style="color:rgba(255,255,255,0.15);font-size:11px;text-decoration:none;" title="Admin">⚙</a></p>
     </div>
   </footer>
 
