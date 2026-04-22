@@ -1,3 +1,5 @@
+document.addEventListener('DOMContentLoaded', () => {
+
 // ---- Navbar scroll effect ----
 const navbar = document.getElementById('navbar');
 const navLinks = document.querySelectorAll('.nav-link');
@@ -402,5 +404,4 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
   });
 });
 
-// Run after DOM is ready
-
+});
