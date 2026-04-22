@@ -22,7 +22,7 @@
     font-src 'self' https://fonts.gstatic.com;
     img-src 'self' data:;
     frame-src https://maps.google.com https://www.google.com;
-    connect-src 'none';
+    connect-src 'self' http://localhost:3001 https://fresh-vibes-backend.onrender.com;
   " />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -598,11 +598,11 @@
       </div>
       <div class="footer-links">
         <h4>Menu Categories</h4>
-        <a href="#menu" onclick="filterMenu('drinks')" id="footer-drinks">Drinks</a>
-        <a href="#menu" onclick="filterMenu('snacks')" id="footer-snacks">Snacks</a>
-        <a href="#menu" onclick="filterMenu('main-course')" id="footer-main">Main Course</a>
-        <a href="#menu" onclick="filterMenu('pizza')" id="footer-pizza">Pizza</a>
-        <a href="#menu" onclick="filterMenu('chinese')" id="footer-chinese">Chinese</a>
+        <a href="#menu" id="footer-drinks">Drinks</a>
+        <a href="#menu" id="footer-snacks">Snacks</a>
+        <a href="#menu" id="footer-main">Main Course</a>
+        <a href="#menu" id="footer-pizza">Pizza</a>
+        <a href="#menu" id="footer-chinese">Chinese</a>
       </div>
     </div>
     <div class="footer-bottom">

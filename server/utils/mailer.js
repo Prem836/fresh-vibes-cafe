@@ -132,9 +132,12 @@ async function sendCustomerConfirmation(reservation) {
 </body>
 </html>`;
 
+  // Only send if the customer provided an email
+  if (!reservation.email) return;
+
   await transporter.sendMail({
     from: `"Fresh Vibes Café" <${process.env.GMAIL_USER}>`,
-    to: reservation.email || process.env.OWNER_EMAIL,
+    to: reservation.email,
     subject: `✅ We got your reservation, ${reservation.name}! – Fresh Vibes Café`,
     html
   });

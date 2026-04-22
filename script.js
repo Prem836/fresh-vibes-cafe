@@ -132,11 +132,22 @@ function highlightActiveNav() {
   if (show) {
     show.addEventListener('mouseenter', () => {
       isPaused = true;
-      if (progressBar) progressBar.style.animationPlayState = 'paused';
+      // Freeze the progress bar visually at its current position
+      if (progressBar) {
+        const computed = getComputedStyle(progressBar).width;
+        const containerWidth = progressBar.parentElement.offsetWidth;
+        const pct = containerWidth ? (parseFloat(computed) / containerWidth * 100).toFixed(2) : '0';
+        progressBar.style.transition = 'none';
+        progressBar.style.width = pct + '%';
+      }
     });
     show.addEventListener('mouseleave', () => {
       isPaused = false;
-      if (progressBar) progressBar.style.animationPlayState = 'running';
+      // Resume the progress bar for the remaining duration
+      if (progressBar) {
+        progressBar.style.transition = `width ${AUTO_DELAY}ms linear`;
+        progressBar.style.width = '100%';
+      }
     });
   }
 
@@ -206,7 +217,9 @@ const reservationForm = document.getElementById('reservationForm');
 const toast = document.getElementById('toast');
 
 // Auto-detect: use live URL if hosted, localhost if running locally
-const BACKEND_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+const BACKEND_URL = (window.location.hostname === 'localhost' ||
+                     window.location.hostname === '127.0.0.1' ||
+                     window.location.hostname === '')
   ? 'http://localhost:3001/api/reservations'
   : 'https://fresh-vibes-backend.onrender.com/api/reservations';
 
@@ -256,6 +269,19 @@ if (reservationForm) {
         toast.classList.add('show');
         setTimeout(() => toast.classList.remove('show'), 6000);
         reservationForm.reset();
+      } else if (res.status >= 400 && res.status < 500) {
+        // Validation error from server — show to user, do NOT fall back to WhatsApp
+        backendSuccess = true; // prevent WhatsApp fallback
+        const toastText = toast.querySelector('span:last-child');
+        const toastIcon = toast.querySelector('.toast-icon');
+        if (toastIcon) toastIcon.textContent = '⚠️';
+        if (toastText) toastText.textContent = data.error || 'Please check your details and try again.';
+        toast.classList.add('show');
+        setTimeout(() => { toast.classList.remove('show'); if (toastIcon) toastIcon.textContent = '✅'; }, 6000);
+        btn.disabled = false;
+        btnText.classList.remove('btn-hidden');
+        btnLoading.classList.add('btn-hidden');
+        return;
       } else {
         throw new Error(data.error || 'Backend error');
       }
@@ -284,14 +310,16 @@ if (reservationForm) {
       const guestLabel  = guestLabels[guests] || guests;
       const cleanNotes  = notes && !['nil','n/a','none'].includes(notes.toLowerCase()) ? notes : '';
       const msg = encodeURIComponent(
-        `\u{1F33F} *Table Reservation \u2013 Fresh Vibes Caf\u00E9*\n\n` +
-        `\u{1F464} *Name:* ${name}\n\u{1F4DE} *Phone:* ${phone}\n` +
-        `\u{1F4C5} *Date:* ${niceDate}\n\u23F0 *Time:* ${niceTime}\n` +
-        `\u{1F465} *Guests:* ${guestLabel}\n\u{1F389} *Occasion:* ${occasionLabels[occasion] || occasion}\n` +
-        (cleanNotes ? `\u{1F4DD} *Notes:* ${cleanNotes}\n` : '') +
-        `\nPlease confirm my reservation. Thank you! \u{1F64F}`
+        `🌿 *Table Reservation – Fresh Vibes Café*\n\n` +
+        `👤 *Name:* ${name}\n📞 *Phone:* ${phone}\n` +
+        `📅 *Date:* ${niceDate}\n⏰ *Time:* ${niceTime}\n` +
+        `👥 *Guests:* ${guestLabel}\n🎉 *Occasion:* ${occasionLabels[occasion] || occasion}\n` +
+        (cleanNotes ? `📝 *Notes:* ${cleanNotes}\n` : '') +
+        `\nPlease confirm my reservation. Thank you! 🙏`
       );
       window.open(`https://wa.me/919796223627?text=${msg}`, '_blank');
+      const toastText = toast.querySelector('span:last-child');
+      if (toastText) toastText.textContent = '📲 Redirecting you to WhatsApp to complete your booking!';
       toast.classList.add('show');
       setTimeout(() => toast.classList.remove('show'), 5000);
       reservationForm.reset();
@@ -318,6 +346,30 @@ function validateForm() {
       el.classList.remove('error');
     }
   });
+
+  // Phone: must be exactly 10 digits (optionally prefixed with +91 or 0)
+  const phoneEl = document.getElementById('res-phone-input');
+  if (phoneEl && phoneEl.value.trim()) {
+    const digits = phoneEl.value.trim().replace(/[\s\-().+]/g, '');
+    const bareDigits = digits.startsWith('91') && digits.length === 12 ? digits.slice(2) : digits;
+    if (!/^[6-9]\d{9}$/.test(bareDigits)) {
+      phoneEl.classList.add('error');
+      valid = false;
+      phoneEl.title = 'Please enter a valid 10-digit Indian mobile number.';
+      phoneEl.addEventListener('input', () => { phoneEl.classList.remove('error'); phoneEl.title = ''; }, { once: true });
+    }
+  }
+
+  // Email: basic format check if provided
+  const emailEl = document.getElementById('res-email');
+  if (emailEl && emailEl.value.trim()) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(emailEl.value.trim())) {
+      emailEl.classList.add('error');
+      valid = false;
+      emailEl.addEventListener('input', () => emailEl.classList.remove('error'), { once: true });
+    }
+  }
 
   return valid;
 }

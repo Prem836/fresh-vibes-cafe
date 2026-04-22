@@ -11,8 +11,23 @@ const app  = express();
 const PORT = process.env.PORT || 3001;
 
 // ── Middleware ────────────────────────────────────────────────────────────────
+// Allowed frontend origins
+const ALLOWED_ORIGINS = [
+  'http://localhost:5500',
+  'http://127.0.0.1:5500',
+  'http://localhost:3000',
+  // Add your deployed frontend URL here, e.g.: 'https://yourdomain.github.io'
+];
+
 app.use(cors({
-  origin: '*',       // Allow all origins locally; restrict to your domain when deployed
+  origin: function (origin, callback) {
+    // Allow requests with no origin (Postman, curl, server-to-server)
+    if (!origin) return callback(null, true);
+    if (ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
+    // In development, allow any localhost origin
+    if (/^http:\/\/localhost:\d+$/.test(origin) || /^http:\/\/127\.0\.0\.1:\d+$/.test(origin)) return callback(null, true);
+    callback(new Error(`CORS: origin ${origin} not allowed`));
+  },
   methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'x-admin-key']
 }));
@@ -30,7 +45,8 @@ mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✅  Connected to MongoDB Atlas'))
   .catch(err => {
     console.error('❌  MongoDB connection failed:', err.message);
-    process.exit(1);
+    console.warn('⚠️   Server is running WITHOUT a database. Fix your MongoDB IP whitelist.');
+    // process.exit(1);  ← removed so the server stays alive for testing
   });
 
 // ── Admin Auth Middleware ─────────────────────────────────────────────────────
@@ -59,6 +75,24 @@ app.post('/api/reservations', reservationLimiter, async (req, res) => {
     // Validation
     if (!name || !phone || !date || !time || !guests) {
       return res.status(400).json({ error: 'Please fill in all required fields (name, phone, date, time, guests).' });
+    }
+
+    // Phone: must be a valid 10-digit Indian number (server-side safety net)
+    const phoneDigits = String(phone).replace(/[\s\-().+]/g, '');
+    const barePhone = phoneDigits.startsWith('91') && phoneDigits.length === 12 ? phoneDigits.slice(2) : phoneDigits;
+    if (!/^[6-9]\d{9}$/.test(barePhone)) {
+      return res.status(400).json({ error: 'Please provide a valid 10-digit Indian mobile number.' });
+    }
+
+    // Email: basic format check if provided
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: 'Please provide a valid email address.' });
+    }
+
+    // Date: must not be in the past
+    const today = new Date().toISOString().split('T')[0];
+    if (date < today) {
+      return res.status(400).json({ error: 'Reservation date cannot be in the past.' });
     }
 
     // Save to database

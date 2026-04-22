@@ -1,0 +1,16 @@
+{
+  "name": "fresh-vibes-cafe",
+  "version": "1.0.0",
+  "description": "Fresh Vibes Café — Full-stack restaurant website with reservation system",
+  "scripts": {
+    "dev": "concurrently --kill-others-on-fail --names \"BACKEND,FRONTEND\" --prefix-colors \"cyan,yellow\" \"npm run server:dev\" \"npm run frontend\"",
+    "start": "concurrently --kill-others-on-fail --names \"BACKEND,FRONTEND\" --prefix-colors \"cyan,yellow\" \"npm run server:start\" \"npm run frontend\"",
+    "server:dev": "cd server && npm run dev",
+    "server:start": "cd server && npm start",
+    "frontend": "live-server --port=5500 --host=localhost --open=index.html --ignore=server,node_modules,.git"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "live-server": "^1.2.2"
+  }
+}

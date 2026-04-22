@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Lock files (keep package-lock.json but ignore yarn.lock if ever added)
+yarn.lock
+
+# Environment variables (NEVER commit secrets)
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor directories
+.vscode/
+.idea/
