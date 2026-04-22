@@ -8,20 +8,18 @@
   <meta name="keywords" content="Fresh Vibes Cafe, vegetarian restaurant Kathua, Indian food Kathua, family restaurant Jammu Kashmir, pure veg cafe NH44" />
 
   <!-- ===== SECURITY HEADERS ===== -->
-  <!-- Prevent clickjacking (embedding in iframes) -->
-  <meta http-equiv="X-Frame-Options" content="DENY" />
   <!-- Stop MIME-type sniffing attacks -->
   <meta http-equiv="X-Content-Type-Options" content="nosniff" />
   <!-- Control referrer info sent to other sites -->
   <meta name="referrer" content="strict-origin-when-cross-origin" />
-  <!-- Content Security Policy: only allow resources from trusted sources -->
+  <!-- Content Security Policy -->
   <meta http-equiv="Content-Security-Policy" content="
     default-src 'self';
     script-src 'self';
-    style-src 'self' https://fonts.googleapis.com;
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
     font-src 'self' https://fonts.gstatic.com;
-    img-src 'self' data:;
-    frame-src https://maps.google.com https://www.google.com;
+    img-src 'self' data: https://maps.googleapis.com https://maps.gstatic.com;
+    frame-src https://maps.google.com https://www.google.com https://maps.googleapis.com;
     connect-src 'self' http://localhost:3001 https://fresh-vibes-cafe.onrender.com;
   " />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
