@@ -61,6 +61,24 @@ function adminAuth(req, res, next) {
 //  PUBLIC ROUTES
 // ══════════════════════════════════════════════════════════════════════════════
 
+// Root — friendly status page (prevents "Cannot GET /")
+app.get('/', (req, res) => {
+  res.json({
+    status: 'ok',
+    service: 'Fresh Vibes Café — Reservation API',
+    version: '1.0.0',
+    endpoints: {
+      health:       'GET  /api/health',
+      reserve:      'POST /api/reservations',
+      adminStats:   'GET  /api/admin/stats',
+      adminList:    'GET  /api/admin/reservations',
+      adminUpdate:  'PATCH /api/admin/reservations/:id',
+      adminDelete:  'DELETE /api/admin/reservations/:id'
+    },
+    frontend: 'https://prem836.github.io/fresh-vibes-cafe/'
+  });
+});
+
 // Health Check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', service: 'Fresh Vibes Café Reservation API', timestamp: new Date() });

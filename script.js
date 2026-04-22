@@ -223,7 +223,7 @@ const BACKEND_URL = (window.location.hostname === 'localhost' ||
                      window.location.hostname === '127.0.0.1' ||
                      window.location.hostname === '')
   ? 'http://localhost:3001/api/reservations'
-  : 'https://fresh-vibes-backend.onrender.com/api/reservations';
+  : 'https://fresh-vibes-cafe.onrender.com/api/reservations';
 
 if (reservationForm) {
   reservationForm.addEventListener('submit', async e => {
