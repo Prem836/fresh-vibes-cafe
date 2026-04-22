@@ -10,13 +10,12 @@ const { sendCustomerConfirmation, sendOwnerNotification } = require('./utils/mai
 const app  = express();
 const PORT = process.env.PORT || 3001;
 
-// ── Middleware ────────────────────────────────────────────────────────────────
 // Allowed frontend origins
 const ALLOWED_ORIGINS = [
   'http://localhost:5500',
   'http://127.0.0.1:5500',
   'http://localhost:3000',
-  // Add your deployed frontend URL here, e.g.: 'https://yourdomain.github.io'
+  'https://prem836.github.io',         // GitHub Pages (production frontend)
 ];
 
 app.use(cors({
