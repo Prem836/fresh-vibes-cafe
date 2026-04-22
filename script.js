@@ -256,34 +256,49 @@ if (reservationForm) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, phone, email, date, time, guests, occasion, notes }),
-        signal: AbortSignal.timeout(8000)   // 8s timeout
+        signal: AbortSignal.timeout(10000)   // 10s timeout (Render cold-start can take ~8s)
       });
 
       const data = await res.json();
 
       if (res.ok && data.success) {
         backendSuccess = true;
-        // Show success toast with email note
-        const toastText = toast.querySelector('span:last-child');
-        if (toastText) toastText.textContent = email
+        // ── Backend success: booking saved to DB ──
+        const toastIcon  = document.getElementById('toastIcon');
+        const toastTitle = document.getElementById('toastTitle');
+        const toastMsg   = document.getElementById('toastMsg');
+        const toastWaBtn = document.getElementById('toastWaBtn');
+        if (toastIcon)  toastIcon.textContent  = '✅';
+        if (toastTitle) toastTitle.textContent = 'Reservation Confirmed!';
+        if (toastMsg)   toastMsg.textContent   = email
           ? 'We\'ll contact you to confirm. A confirmation email is on its way!'
           : 'We\'ll call you shortly to confirm your booking.';
+        if (toastWaBtn) toastWaBtn.style.display = 'none';
         toast.classList.add('show');
         setTimeout(() => toast.classList.remove('show'), 6000);
         reservationForm.reset();
+
       } else if (res.status >= 400 && res.status < 500) {
-        // Validation error from server — show to user, do NOT fall back to WhatsApp
-        backendSuccess = true; // prevent WhatsApp fallback
-        const toastText = toast.querySelector('span:last-child');
-        const toastIcon = toast.querySelector('.toast-icon');
-        if (toastIcon) toastIcon.textContent = '⚠️';
-        if (toastText) toastText.textContent = data.error || 'Please check your details and try again.';
+        // ── Validation error: show message, don't fall back to WhatsApp ──
+        backendSuccess = true;
+        const toastIcon  = document.getElementById('toastIcon');
+        const toastTitle = document.getElementById('toastTitle');
+        const toastMsg   = document.getElementById('toastMsg');
+        const toastWaBtn = document.getElementById('toastWaBtn');
+        if (toastIcon)  toastIcon.textContent  = '⚠️';
+        if (toastTitle) toastTitle.textContent = 'Please check your details';
+        if (toastMsg)   toastMsg.textContent   = data.error || 'Please check your details and try again.';
+        if (toastWaBtn) toastWaBtn.style.display = 'none';
         toast.classList.add('show');
-        setTimeout(() => { toast.classList.remove('show'); if (toastIcon) toastIcon.textContent = '✅'; }, 6000);
+        setTimeout(() => {
+          toast.classList.remove('show');
+          if (toastIcon) toastIcon.textContent = '✅';
+        }, 6000);
         btn.disabled = false;
         btnText.classList.remove('btn-hidden');
         btnLoading.classList.add('btn-hidden');
         return;
+
       } else {
         throw new Error(data.error || 'Backend error');
       }
@@ -292,7 +307,7 @@ if (reservationForm) {
       console.warn('Backend unavailable, falling back to WhatsApp:', err.message);
     }
 
-    // ── WhatsApp fallback (if backend is offline) ──────────────────────────
+    // ── WhatsApp fallback (backend offline / timed out) ────────────────────
     if (!backendSuccess) {
       const occasionLabels = {
         regular: 'Regular Meal', birthday: 'Birthday Celebration 🎂',
@@ -308,10 +323,10 @@ if (reservationForm) {
       const [hh, mm] = time.split(':');
       const timeObj  = new Date();
       timeObj.setHours(+hh, +mm);
-      const niceTime    = timeObj.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true });
-      const guestLabel  = guestLabels[guests] || guests;
-      const cleanNotes  = notes && !['nil','n/a','none'].includes(notes.toLowerCase()) ? notes : '';
-      const msg = encodeURIComponent(
+      const niceTime   = timeObj.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true });
+      const guestLabel = guestLabels[guests] || guests;
+      const cleanNotes = notes && !['nil','n/a','none'].includes(notes.toLowerCase()) ? notes : '';
+      const waMsg = encodeURIComponent(
         `🌿 *Table Reservation – Fresh Vibes Café*\n\n` +
         `👤 *Name:* ${name}\n📞 *Phone:* ${phone}\n` +
         `📅 *Date:* ${niceDate}\n⏰ *Time:* ${niceTime}\n` +
@@ -319,11 +334,25 @@ if (reservationForm) {
         (cleanNotes ? `📝 *Notes:* ${cleanNotes}\n` : '') +
         `\nPlease confirm my reservation. Thank you! 🙏`
       );
-      window.open(`https://wa.me/919796223627?text=${msg}`, '_blank');
-      const toastText = toast.querySelector('span:last-child');
-      if (toastText) toastText.textContent = '📲 Redirecting you to WhatsApp to complete your booking!';
+      const waUrl = `https://wa.me/919796223627?text=${waMsg}`;
+
+      // Show toast with a clickable WhatsApp button (avoids popup blocker)
+      const toastIcon  = document.getElementById('toastIcon');
+      const toastTitle = document.getElementById('toastTitle');
+      const toastMsg   = document.getElementById('toastMsg');
+      const toastWaBtn = document.getElementById('toastWaBtn');
+      if (toastIcon)  toastIcon.textContent  = '📲';
+      if (toastTitle) toastTitle.textContent = 'Complete via WhatsApp';
+      if (toastMsg)   toastMsg.textContent   = 'Tap below to send your booking on WhatsApp:';
+      if (toastWaBtn) { toastWaBtn.href = waUrl; toastWaBtn.style.display = 'block'; }
       toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 5000);
+      // Keep open longer so user has time to tap the button
+      setTimeout(() => {
+        toast.classList.remove('show');
+        if (toastIcon)  toastIcon.textContent  = '✅';
+        if (toastTitle) toastTitle.textContent = 'Reservation Confirmed!';
+        if (toastWaBtn) toastWaBtn.style.display = 'none';
+      }, 12000);
       reservationForm.reset();
     }
 

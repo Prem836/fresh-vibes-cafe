@@ -497,10 +497,14 @@
 
   <!-- ===== SUCCESS TOAST ===== -->
   <div class="toast" id="toast">
-    <div class="toast-icon">✅</div>
+    <div class="toast-icon" id="toastIcon">✅</div>
     <div class="toast-text">
-      <strong>Reservation Confirmed!</strong>
-      <span>We'll contact you to confirm your booking.</span>
+      <strong id="toastTitle">Reservation Confirmed!</strong>
+      <span id="toastMsg">We'll contact you to confirm your booking.</span>
+      <a id="toastWaBtn" href="#" target="_blank" rel="noopener noreferrer"
+         style="display:none; margin-top:8px; background:#25d366; color:#fff; padding:7px 16px; border-radius:8px; font-weight:700; font-size:13px; text-decoration:none; text-align:center;">
+        📲 Open WhatsApp →
+      </a>
     </div>
   </div>
 
