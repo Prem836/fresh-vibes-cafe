@@ -16,6 +16,8 @@ const ALLOWED_ORIGINS = [
   'http://127.0.0.1:5500',
   'http://localhost:3000',
   'https://prem836.github.io',         // GitHub Pages (production frontend)
+  'https://freshvibescafe.foo',        // Custom domain (name.com)
+  'https://www.freshvibescafe.foo',    // www version of custom domain
 ];
 
 app.use(cors({
