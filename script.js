@@ -334,7 +334,7 @@ if (reservationForm) {
         (cleanNotes ? `📝 *Notes:* ${cleanNotes}\n` : '') +
         `\nPlease confirm my reservation. Thank you! 🙏`
       );
-      const waUrl = `https://wa.me/919796223627?text=${waMsg}`;
+      const waUrl = `https://wa.me/917006010348?text=${waMsg}`;
 
       // Show toast with a clickable WhatsApp button (avoids popup blocker)
       const toastIcon  = document.getElementById('toastIcon');

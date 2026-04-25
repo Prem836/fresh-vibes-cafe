@@ -118,14 +118,14 @@ async function sendCustomerConfirmation(reservation) {
 
       <!-- CTA -->
       <div class="cta">
-        <a href="tel:+919796223627">📞 Call Us: +91 97962 23627</a>
+        <a href="tel:+917006010348">📞 Call Us: +91 70060 10348</a>
       </div>
     </div>
 
     <!-- Footer -->
     <div class="ftr">
       <p>📍 Near Vaid Ayurvedic, Chadwal More, NH-44, Kathua, J&amp;K 184144</p>
-      <p>📞 <a href="tel:+919796223627">+91 97962 23627</a> &nbsp;|&nbsp; ✉️ <a href="mailto:${process.env.GMAIL_USER}">${process.env.GMAIL_USER}</a></p>
+      <p>📞 <a href="tel:+917006010348">+91 70060 10348</a> &nbsp;|&nbsp; ✉️ <a href="mailto:${process.env.GMAIL_USER}">${process.env.GMAIL_USER}</a></p>
       <p style="margin-top:12px; color:#555; font-size:12px;">© 2026 Fresh Vibes Café. All rights reserved.</p>
     </div>
   </div>
@@ -162,7 +162,7 @@ async function sendOwnerNotification(reservation) {
     (reservation.notes ? `📝 *Notes:* ${reservation.notes}\n` : '') +
     `\n✅ Confirm or ❌ Cancel this booking.`
   );
-  const waLink = `https://wa.me/919796223627?text=${waText}`;
+  const waLink = `https://wa.me/917006010348?text=${waText}`;
 
   const html = `<!DOCTYPE html>
 <html lang="en">

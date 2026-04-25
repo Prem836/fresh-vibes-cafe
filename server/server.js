@@ -132,7 +132,7 @@ app.post('/api/reservations', reservationLimiter, async (req, res) => {
 
   } catch (err) {
     console.error('Reservation creation error:', err);
-    res.status(500).json({ error: 'Something went wrong. Please call us directly at +91 97962 23627.' });
+    res.status(500).json({ error: 'Something went wrong. Please call us directly at +91 70060 10348.' });
   }
 });
 
