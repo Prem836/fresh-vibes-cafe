@@ -1037,7 +1037,9 @@ ul { list-style: none; }
   .section { padding: 70px 0; }
   .nav-links {
     position: fixed;
-    inset: 0 0 0 auto;
+    top: 0;
+    right: 0;
+    height: 100vh;
     width: 280px;
     background: var(--green-dark);
     flex-direction: column;
